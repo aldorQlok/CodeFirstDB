@@ -10,10 +10,13 @@ namespace CodeFirstDB.Models
 
         public string Name { get; set; }
 
+
+        [StringLength(50)]
         public string Email { get; set; }
 
+
         [ForeignKey("Class")]
-        public int ClassID_FK { get; set; }
+        public int? ClassID_FK { get; set; }
         public virtual Class Class { get; set; }
 
     }
