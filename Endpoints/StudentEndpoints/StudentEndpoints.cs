@@ -1,6 +1,7 @@
 ﻿using CodeFirstDB.Data;
 using CodeFirstDB.DTOs.StudentDtos;
 using CodeFirstDB.Models;
+using CodeFirstDB.Services;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
@@ -10,6 +11,13 @@ namespace CodeFirstDB.Endpoints.StudentEndpoints
     {
         public static void RegisterEndpoints(WebApplication app)
         {
+            app.MapGet("GetAllStudent", async (UserService userService) =>
+            {
+                var students = await userService.GetAllStudents();
+
+                return students;
+            });
+
             app.MapGet("/students", async (SchoolDBContext context) =>
             {
                 var studentList = await context.Students.Select(s => new StudentDto

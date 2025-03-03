@@ -3,6 +3,7 @@ using CodeFirstDB.Data;
 using CodeFirstDB.DTOs.StudentDtos;
 using CodeFirstDB.Endpoints.StudentEndpoints;
 using CodeFirstDB.Models;
+using CodeFirstDB.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeFirstDB
@@ -25,6 +26,7 @@ namespace CodeFirstDB
                 options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
             });
 
+            builder.Services.AddScoped<UserService>();
 
             var app = builder.Build();
 
@@ -38,6 +40,23 @@ namespace CodeFirstDB
             app.UseHttpsRedirection();
 
             app.UseAuthorization();
+
+            app.Use(async (HttpContext context, RequestDelegate next) =>
+            {
+                Console.WriteLine("Request Recieved.");
+                string? configuredApiKey = builder.Configuration["ApiKey"];
+                var apiKey = context.Request.Headers["X-API-Key"].FirstOrDefault();
+
+                if (apiKey != configuredApiKey)
+                {
+                    context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                    await context.Response.WriteAsync("Du får inte tillgång!");
+                    return;
+                }
+
+                await next(context);
+
+            });
 
             StudentEndpoints.RegisterEndpoints(app);
 
